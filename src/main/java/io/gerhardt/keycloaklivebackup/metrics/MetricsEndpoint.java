@@ -1,5 +1,6 @@
 package io.gerhardt.keycloaklivebackup.metrics;
 
+import io.gerhardt.keycloaklivebackup.utilities.PrometheusExporter;
 import org.keycloak.services.resource.RealmResourceProvider;
 
 import javax.ws.rs.GET;

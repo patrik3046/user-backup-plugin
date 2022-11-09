@@ -1,5 +1,6 @@
 package io.gerhardt.keycloaklivebackup.csv;
 
+import io.gerhardt.keycloaklivebackup.utilities.CsvManager;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.services.resource.RealmResourceProvider;
 
@@ -34,7 +35,7 @@ public class GenerateCsvEndpoint implements RealmResourceProvider {
                 return Response.status(Status.FORBIDDEN).build(); //(stream).build();
             }
         }
-        CsvMapGenerator csvMapGenerator = new CsvMapGenerator();
+        CsvManager csvMapGenerator = new CsvManager(null);
         csvMapGenerator.updateCsv(keycloakSession);
         return Response.ok().entity("").build();
     }

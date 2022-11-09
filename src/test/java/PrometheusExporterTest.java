@@ -1,4 +1,4 @@
-import io.gerhardt.keycloaklivebackup.metrics.PrometheusExporter;
+import io.gerhardt.keycloaklivebackup.utilities.PrometheusExporter;
 import io.prometheus.client.CollectorRegistry;
 import org.junit.Assert;
 import org.junit.Before;

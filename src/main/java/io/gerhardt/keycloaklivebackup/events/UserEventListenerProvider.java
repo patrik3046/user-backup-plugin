@@ -1,7 +1,7 @@
 package io.gerhardt.keycloaklivebackup.events;
 
-import io.gerhardt.keycloaklivebackup.actions.UserDataManager;
-import io.gerhardt.keycloaklivebackup.metrics.PrometheusExporter;
+import io.gerhardt.keycloaklivebackup.utilities.UserDataManager;
+import io.gerhardt.keycloaklivebackup.utilities.PrometheusExporter;
 import org.jboss.logging.Logger;
 import org.keycloak.events.Event;
 import org.keycloak.events.EventListenerProvider;
@@ -12,7 +12,7 @@ import java.util.Map;
 
 
 public class UserEventListenerProvider implements EventListenerProvider {
-    private final Logger LOG = Logger.getLogger(UserEventListenerProvider.class);
+    private final Logger logger = Logger.getLogger(UserEventListenerProvider.class);
 
     private final UserDataManager userDataManager = new UserDataManager();
 
@@ -36,7 +36,7 @@ public class UserEventListenerProvider implements EventListenerProvider {
                 try {
                     userDataManager.exportUserData(keycloakSession, event.getType().toString(), event.getUserId(), event.getRealmId());
                 } catch (Exception e) {
-                    LOG.error("Event:" + event.getType() + ", UserID:" + event.getUserId() + ", Realm:" + event.getRealmId(), e);
+                    logger.error("Event:" + event.getType() + ", UserID:" + event.getUserId() + ", Realm:" + event.getRealmId(), e);
                 }
                 break;
             }
@@ -46,7 +46,7 @@ public class UserEventListenerProvider implements EventListenerProvider {
 
         PrometheusExporter.instance().recordJsonFilesNumber(event.getRealmId());
 
-        LOG.info("Event Occurred:" + toString(event));
+        logger.info("Event Occurred:" + toString(event));
     }
 
 
@@ -71,7 +71,7 @@ public class UserEventListenerProvider implements EventListenerProvider {
                         userDataManager.exportUserData(keycloakSession, adminEvent.getOperationType().toString(), pathResource[1], adminEvent.getRealmId());
                     }
                 } catch (Exception e) {
-                    LOG.error("Event:" + adminEvent.getOperationType() + ", Resource path:" + adminEvent.getResourcePath() + ", Realm:" + adminEvent.getRealmId(), e);
+                    logger.error("Event:" + adminEvent.getOperationType() + ", Resource path:" + adminEvent.getResourcePath() + ", Realm:" + adminEvent.getRealmId(), e);
                 }
                 break;
             }
@@ -81,7 +81,7 @@ public class UserEventListenerProvider implements EventListenerProvider {
 
         PrometheusExporter.instance().recordJsonFilesNumber(adminEvent.getRealmId());
 
-        LOG.info("Admin Event Occurred:" + toString(adminEvent));
+        logger.info("Admin Event Occurred:" + toString(adminEvent));
     }
 
     @Override

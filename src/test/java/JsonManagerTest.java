@@ -1,5 +1,5 @@
-import io.gerhardt.keycloaklivebackup.actions.JsonManager;
-import io.gerhardt.keycloaklivebackup.actions.UserDataManager;
+import io.gerhardt.keycloaklivebackup.utilities.JsonManager;
+import io.gerhardt.keycloaklivebackup.utilities.UserDataManager;
 import io.gerhardt.keycloaklivebackup.models.User;
 
 import org.junit.Assert;

@@ -1,14 +1,19 @@
+# Introduction
+
+This is a personally updated and developed version of the open source User-Backup-Plugin owned by the Gerhardt Informatics Kft.
+The original source code can be found the following link: https://git.gerhardt.io/patrik3046/user-backup-plugin
+
 # How to use the plugin
 
 ## Set the directory for the files
 
-Open the `../User-Backup-Plugin/src/main/resources/jsons.path` file and replace the whole context with your own
-directory's absolute path.
+You will need a new environment variable called `JSONS_PATH`. The value should be the
+directory absolute path where the JSON files will be.
 
 ## Set the realm name
 
-Open the `../User-Backup-Plugin/src/main/resources/realm.name` file and replace the whole context with the realm's name
-which will have the plugin.
+You will need a new environment variable called `REALM_NAME`. The value should be the
+realm's name where you want to use the plugin.
 
 ## Build the project
 
@@ -20,7 +25,7 @@ To build the project open the terminal in the `User-Backup-Plugin` folder and ru
 
 ## Deploy the jar file
 
-Put your jar file into the `$[keycloak_home]/standalone/deployments` folder. The server will automatically deploy it.
+Put your jar file into the `$KEYCLOAK_HOME/standalone/deployments` folder. The server will automatically deploy it.
 
 ## Select the plugin
 
@@ -32,8 +37,8 @@ plugin and save.
 
 ## Export files
 
-The plugin exports a file when a user logging in or update his/her own profile. If the admin add or update an user then
-the plugin exports a file too.
+The plugin exports a file when a user logging in or update their own profile. If the admin add or update an user then
+the plugin exports a file too. Deletion will work too when a user delete their own profile or the Admin deletes the user from the realm.
 
 ## Restore
 
@@ -42,10 +47,10 @@ There is two option:
 
 * Recommended: [optional:reinstall the server and add the plugin to it] -> create a realm with the same name like the
   other one had -> Import the export files -> Add the plugin into the realm -> call the restore
-  endpoint: `$HOST/auth/realms/$REALM_NAME/restore`
+  endpoint: `$HOST/auth/realms/$REALM_NAME/generateCsv`
 * [optional:reinstall the server and add the plugin to it] -> create a realm with the same name like the other one had
   -> Add the plugin into the realm ->  Import the export files -> call the restore
-  endpoint: `$HOST/auth/realms/$REALM_NAME/restore`
+  endpoint: `$HOST/auth/realms/$REALM_NAME/generateCsv`
 
 ## Metrics
 
