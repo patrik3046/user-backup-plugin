@@ -1,7 +1,7 @@
 # Introduction
 
 This is a personally updated and developed version of the open source User-Backup-Plugin owned by the Gerhardt Informatics Kft.
-The original source code can be found the following link: https://git.gerhardt.io/patrik3046/user-backup-plugin
+The original source code can be found the following link: https://git.gerhardt.io/keycloak/backup-plugin
 
 # How to use the plugin
 
