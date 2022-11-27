@@ -23,26 +23,13 @@ public class JsonManager {
     }
 
     public void createFile(User user, String realmId) {
-        try {
+        deleteJsonFileBeforeCreate(user);
+
+        String filePath = getJsonsPath() + userDataManager.encodeUsername(user.getUsername()) + ".json";
+        try (FileWriter fileWriter = new FileWriter(filePath)){
             int numberOfFilesInitially = getNumberOfJsonFiles();
 
-            File[] jsonsDirectoryFiles = new File(getJsonsPath()).listFiles();
-            if (jsonsDirectoryFiles == null) {
-                logger.info("JSON files directory is null. Can not create the JSON file!");
-                return;
-            }
-            for (File jsonFile : jsonsDirectoryFiles) {
-                if (jsonFile.getName().equals(userDataManager.encodeUsername(user.getUsername()) + ".json")) {
-                    boolean deleted = jsonFile.delete();
-                    if (!deleted) {
-                        logger.error("Could not delete JSON file: " + jsonFile.getAbsolutePath());
-                    }
-                }
-            }
-
-            FileWriter fileWriter = new FileWriter(getJsonsPath() + userDataManager.encodeUsername(user.getUsername()) + ".json");
             fileWriter.write(user.toString());
-            fileWriter.close();
 
             csvManager.appendCsvWithUser(user.getId(), user.getUsername());
 
@@ -56,9 +43,29 @@ public class JsonManager {
         }
     }
 
+    private void deleteJsonFileBeforeCreate(User user){
+        File[] jsonsDirectoryFiles = new File(getJsonsPath()).listFiles();
+        if (jsonsDirectoryFiles == null) {
+            logger.info("JSON files directory is null. Can not create the JSON file!");
+            return;
+        }
+        for (File jsonFile : jsonsDirectoryFiles) {
+            if (jsonFile.getName().equals(userDataManager.encodeUsername(user.getUsername()) + ".json")) {
+                boolean deleted = jsonFile.delete();
+                if (!deleted) {
+                    logger.error("Could not delete JSON file: " + jsonFile.getAbsolutePath());
+                }
+            }
+        }
+    }
+
     public void deleteFile(String userId, String realmId) throws IOException {
         File jsonsDirectory = new File(getJsonsPath());
         File[] filesInDirectory = jsonsDirectory.listFiles();
+        if (filesInDirectory == null) {
+            logger.info("JSON files directory is null. Can not delete the json file!");
+            return;
+        }
 
         String username = csvManager.getEncodedUsernameByID(userId);
         if (username == null) {
@@ -68,23 +75,15 @@ public class JsonManager {
 
         csvManager.deleteUserFromCsv(userId);
 
-        if (filesInDirectory == null) {
-            logger.info("JSON files directory is null. Can not delete the json file!");
-            return;
-        }
-        for (File file : filesInDirectory) {
-            if (file.getName().equals(username + ".json")) {
-                File jsonFile = new File(file.getAbsolutePath());
-                if (jsonFile.exists()) {
-                    boolean deleted = jsonFile.delete();
-                    if (!deleted) {
-                        logger.error("Could not delete JSON file: " + jsonFile.getAbsolutePath());
-                    }
-                    PrometheusExporter.instance().recordDeletedJsonFilesNumber(realmId);
-                    logger.info("File successfully removed:" + getJsonsPath() + username + ".json");
-                }
-                break;
+
+        File jsonFile = new File(getJsonsPath() + username + ".json");
+        if (jsonFile.exists()) {
+            boolean deleted = jsonFile.delete();
+            if (!deleted) {
+                logger.error("Could not delete JSON file: " + jsonFile.getAbsolutePath());
             }
+            PrometheusExporter.instance().recordDeletedJsonFilesNumber(realmId);
+            logger.info("File successfully removed:" + getJsonsPath() + username + ".json");
         }
     }
 
