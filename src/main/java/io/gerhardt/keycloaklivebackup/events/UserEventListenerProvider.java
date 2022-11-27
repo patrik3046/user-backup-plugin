@@ -1,11 +1,13 @@
 package io.gerhardt.keycloaklivebackup.events;
 
+import io.gerhardt.keycloaklivebackup.models.JsonFileStatus;
 import io.gerhardt.keycloaklivebackup.utilities.UserDataManager;
 import io.gerhardt.keycloaklivebackup.utilities.PrometheusExporter;
 import org.jboss.logging.Logger;
 import org.keycloak.events.Event;
 import org.keycloak.events.EventListenerProvider;
 import org.keycloak.events.admin.AdminEvent;
+import org.keycloak.events.admin.OperationType;
 import org.keycloak.models.KeycloakSession;
 
 import java.util.Map;
@@ -28,13 +30,16 @@ public class UserEventListenerProvider implements EventListenerProvider {
         PrometheusExporter.instance().recordEvents(event.getRealmId());
 
         //Process event by type
+        JsonFileStatus jsonFileStatus = JsonFileStatus.DELETE;
         switch (event.getType()) {
             case LOGIN:
             case REGISTER:
-            case UPDATE_PROFILE:
+            case UPDATE_PROFILE: {
+                jsonFileStatus = JsonFileStatus.CREATE;
+            }
             case DELETE_ACCOUNT: {
                 try {
-                    userDataManager.exportUserData(keycloakSession, event.getType().toString(), event.getUserId(), event.getRealmId());
+                    userDataManager.exportUserData(keycloakSession, jsonFileStatus, event.getUserId(), event.getRealmId());
                 } catch (Exception e) {
                     logger.error("Event:" + event.getType() + ", UserID:" + event.getUserId() + ", Realm:" + event.getRealmId(), e);
                 }
@@ -52,23 +57,24 @@ public class UserEventListenerProvider implements EventListenerProvider {
 
     @Override
     public void onEvent(AdminEvent adminEvent, boolean b) {
-        //Record metric
         PrometheusExporter.instance().recordEvents(adminEvent.getRealmId());
 
-        //Process event by type
+        JsonFileStatus jsonFileStatus = JsonFileStatus.DELETE;
         switch (adminEvent.getOperationType()) {
             case ACTION:
             case CREATE:
-            case DELETE:
             case UPDATE: {
+                jsonFileStatus = JsonFileStatus.CREATE;
+            }
+            case DELETE: {
                 try {
                     String[] pathResource = adminEvent.getResourcePath().split("/");
                     if (!pathResource[0].equals("users")) {
                         break;
-                    } else if (adminEvent.getOperationType().toString().equals("DELETE") && pathResource.length > 2) {
-                        userDataManager.exportUserData(keycloakSession, "UPDATE", pathResource[1], adminEvent.getRealmId());
+                    } else if (adminEvent.getOperationType() == OperationType.DELETE && pathResource.length > 2) {
+                        userDataManager.exportUserData(keycloakSession, JsonFileStatus.CREATE, pathResource[1], adminEvent.getRealmId());
                     } else {
-                        userDataManager.exportUserData(keycloakSession, adminEvent.getOperationType().toString(), pathResource[1], adminEvent.getRealmId());
+                        userDataManager.exportUserData(keycloakSession, jsonFileStatus, pathResource[1], adminEvent.getRealmId());
                     }
                 } catch (Exception e) {
                     logger.error("Event:" + adminEvent.getOperationType() + ", Resource path:" + adminEvent.getResourcePath() + ", Realm:" + adminEvent.getRealmId(), e);

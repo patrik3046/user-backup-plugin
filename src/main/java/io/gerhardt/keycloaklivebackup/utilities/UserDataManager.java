@@ -1,6 +1,7 @@
 package io.gerhardt.keycloaklivebackup.utilities;
 
 import io.gerhardt.keycloaklivebackup.models.Credential;
+import io.gerhardt.keycloaklivebackup.models.JsonFileStatus;
 import io.gerhardt.keycloaklivebackup.models.User;
 import org.keycloak.credential.CredentialModel;
 import org.keycloak.models.*;
@@ -13,25 +14,16 @@ import java.util.*;
 public class UserDataManager {
     private final JsonManager jsonManager = new JsonManager(this);
 
-    public void exportUserData(KeycloakSession keycloakSession, String event, String userId, String realmId) throws IOException {
-        switch (event) {
-            case "LOGIN":
-            case "UPDATE_PROFILE":
-            case "REGISTER":
-            case "CREATE":
-            case "UPDATE":
-            case "ACTION": {
+    public void exportUserData(KeycloakSession keycloakSession, JsonFileStatus jsonFileStatus, String userId, String realmId) throws IOException {
+        switch (jsonFileStatus) {
+            case CREATE: {
                 RealmModel realmModel = keycloakSession.realms().getRealm(realmId);
-
                 UserModel userModel = keycloakSession.users().getUserById(realmModel, userId);
-
                 User user = convertUserModelToUser(keycloakSession, realmModel, userModel);
-
                 jsonManager.createFile(user, realmId);
             }
             break;
-            case "DELETE":
-            case "DELETE_ACCOUNT": {
+            case DELETE: {
                 jsonManager.deleteFile(userId, realmId);
             }
             break;
@@ -43,7 +35,6 @@ public class UserDataManager {
     public User convertUserModelToUser(KeycloakSession keycloakSession, RealmModel realmModel, UserModel userModel) {
         List<RoleModel> roleModelList = new ArrayList<>();
         userModel.getRealmRoleMappingsStream().forEach(roleModelList::add);
-
         List<String> realmRoles = new ArrayList<>();
         for (RoleModel model : roleModelList) {
             realmRoles.add(model.getName());

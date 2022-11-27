@@ -34,7 +34,7 @@ public class JsonManager {
             for (File jsonFile : jsonsDirectoryFiles) {
                 if (jsonFile.getName().equals(userDataManager.encodeUsername(user.getUsername()) + ".json")) {
                     boolean deleted = jsonFile.delete();
-                    if(!deleted){
+                    if (!deleted) {
                         logger.error("Could not delete JSON file: " + jsonFile.getAbsolutePath());
                     }
                 }
@@ -77,7 +77,7 @@ public class JsonManager {
                 File jsonFile = new File(file.getAbsolutePath());
                 if (jsonFile.exists()) {
                     boolean deleted = jsonFile.delete();
-                    if(!deleted){
+                    if (!deleted) {
                         logger.error("Could not delete JSON file: " + jsonFile.getAbsolutePath());
                     }
                     PrometheusExporter.instance().recordDeletedJsonFilesNumber(realmId);

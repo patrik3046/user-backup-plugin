@@ -14,7 +14,7 @@ public class GenerateCsvEndpoint implements RealmResourceProvider {
     private final KeycloakSession keycloakSession;
 
     // The ID of the provider is also used as the name of the endpoint
-    public final static String ID = "generateCsv";
+    public final static String ID = "generate-csv";
 
     private static final boolean DISABLE_EXTERNAL_ACCESS = true;
 
