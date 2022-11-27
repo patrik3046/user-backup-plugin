@@ -7,6 +7,7 @@ import org.keycloak.services.resource.RealmResourceProvider;
 import org.keycloak.services.resource.RealmResourceProviderFactory;
 
 public class GenerateCsvEndpointFactory implements RealmResourceProviderFactory {
+
     @Override
     public RealmResourceProvider create(KeycloakSession session) {
         return new GenerateCsvEndpoint(session);

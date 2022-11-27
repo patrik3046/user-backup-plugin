@@ -35,9 +35,13 @@ public class GenerateCsvEndpoint implements RealmResourceProvider {
                 return Response.status(Status.FORBIDDEN).build(); //(stream).build();
             }
         }
-        CsvManager csvMapGenerator = new CsvManager(null);
-        csvMapGenerator.updateCsv(keycloakSession);
-        return Response.ok().entity("").build();
+        try {
+            CsvManager csvMapGenerator = new CsvManager(null);
+            csvMapGenerator.updateCsv(keycloakSession);
+            return Response.ok().entity("Success!").build();
+        } catch (Exception exception) {
+            return Response.serverError().build();
+        }
     }
 
     @Override

@@ -30,8 +30,12 @@ public class MetricsEndpoint implements RealmResourceProvider {
             }
         }
 
-        final StreamingOutput stream = output -> PrometheusExporter.instance().export(output);
-        return Response.ok(stream).build();
+        try {
+            final StreamingOutput stream = output -> PrometheusExporter.instance().export(output);
+            return Response.ok(stream).build();
+        } catch (Exception exception) {
+            return Response.serverError().build();
+        }
     }
 
     @Override

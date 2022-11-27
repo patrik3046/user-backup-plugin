@@ -27,7 +27,6 @@ public final class PrometheusExporter {
 
     private final Logger logger = Logger.getLogger(PrometheusExporter.class);
 
-    // these fields are package private on purpose
     static Gauge numberOfJsonFiles;
     static Counter numberOfUpdatedJsonFiles;
     static Counter numberOfDeletedJsonFiles;
@@ -35,16 +34,8 @@ public final class PrometheusExporter {
     public PushGateway PUSH_GATEWAY;
 
     private PrometheusExporter() {
-        // The metrics collector needs to be a singleton because requiring a
-        // provider from the KeyCloak session (session#getProvider) will always
-        // create a new instance. Not sure if this is a bug in the SPI implementation
-        // or intentional but better to avoid this. The metrics object is single-instance
-        // anyway and all the Gauges are suggested to be static (it does not really make
-        // sense to record the same metric in multiple places)
-
         PUSH_GATEWAY = buildPushGateWay();
 
-        // package private on purpose
         numberOfJsonFiles = Gauge.build()
                 .name("number_of_JSON_files")
                 .help("Exported .json files with user data in it.")
@@ -77,69 +68,35 @@ public final class PrometheusExporter {
         return INSTANCE;
     }
 
-    /**
-     * Increase the number of user events
-     *
-     * @param realmId name of the realm
-     */
     public void recordEvents(final String realmId) {
         totalNumberOfEvents.labels(realmId).inc();
         pushAsync();
     }
 
-    /**
-     * Increase the number of the .json files
-     *
-     * @param realmId name of the realm
-     */
     public void recordJsonFilesNumber(final String realmId) {
         JsonManager jsonManager = new JsonManager(new UserDataManager());
         int jsonFilesNumber = jsonManager.getNumberOfJsonFiles();
         numberOfJsonFiles.labels(realmId).set(jsonFilesNumber);
     }
 
-    /**
-     * Increase the number of the updated .json files
-     *
-     * @param realmId name of the realm
-     */
-
     public void recordUpdatedJsonFilesNumber(final String realmId) {
         numberOfUpdatedJsonFiles.labels(realmId).inc();
     }
 
-    /**
-     * Increase the number of the deleted .json files
-     *
-     * @param realmId name of the realm
-     */
     public void recordDeletedJsonFilesNumber(final String realmId) {
         numberOfDeletedJsonFiles.labels(realmId).inc();
     }
 
-    /**
-     * Write the Prometheus formatted values of all counters and
-     * gauges to the stream
-     *
-     * @param stream Output stream
-     */
     public void export(final OutputStream stream) throws IOException {
         final Writer writer = new BufferedWriter(new OutputStreamWriter(stream));
         TextFormat.write004(writer, CollectorRegistry.defaultRegistry.metricFamilySamples());
         writer.flush();
     }
 
-    /**
-     * Build a prometheus pushgateway if an address is defined in environment.
-     *
-     * @return PushGateway
-     */
     private PushGateway buildPushGateWay() {
-        // host:port or ip:port of the Push gateway.
         PushGateway pg = null;
         String host = System.getenv("PROMETHEUS_PUSHGATEWAY_ADDRESS");
         if (host != null) {
-            // if protocol is missing in host, we assume http
             if (!host.toLowerCase().startsWith("http://") && !host.startsWith("https://")) {
                 host = "http://" + host;
             }
