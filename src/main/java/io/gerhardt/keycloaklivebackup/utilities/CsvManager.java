@@ -24,22 +24,24 @@ public class CsvManager {
             createCsvFile();
         }
 
-        BufferedReader bufferedReader = new BufferedReader(new FileReader(csvFile));
-        Map<String, String> keycloakIdAndUsername = new HashMap<>();
-        String line = bufferedReader.readLine();
-        while (line != null && !line.equals("\n")) {
-            String[] partsOfTheLine = line.trim().split(",");
-            String username = partsOfTheLine[1];
-            String keycloakId = partsOfTheLine[0];
+        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(csvFile))) {
+            Map<String, String> keycloakIdAndUsername = new HashMap<>();
+            String line = bufferedReader.readLine();
+            while (line != null && !line.equals("\n")) {
+                String[] partsOfTheLine = line.trim().split(",");
+                String username = partsOfTheLine[1];
+                String keycloakId = partsOfTheLine[0];
 
-            keycloakIdAndUsername.put(keycloakId, username);
+                keycloakIdAndUsername.put(keycloakId, username);
 
-            line = bufferedReader.readLine();
+                line = bufferedReader.readLine();
+            }
+
+            return keycloakIdAndUsername;
+        } catch (Exception exception) {
+            logger.error("An error occurred while trying to read the CSV file.");
+            return new HashMap<>();
         }
-
-        bufferedReader.close();
-
-        return keycloakIdAndUsername;
     }
 
     public void setCsvData(Map<String, String> keycloakIdAndUsername) throws IOException {
@@ -47,15 +49,17 @@ public class CsvManager {
             createCsvFile();
         }
 
-        FileWriter fileWriter = new FileWriter(csvFile);
-        StringBuilder data = new StringBuilder();
+        try (FileWriter fileWriter = new FileWriter(csvFile)) {
+            StringBuilder data = new StringBuilder();
 
-        for (Map.Entry<String, String> entry : keycloakIdAndUsername.entrySet()) {
-            data.append(entry.getKey()).append(",").append(entry.getValue()).append("\n");
+            for (Map.Entry<String, String> entry : keycloakIdAndUsername.entrySet()) {
+                data.append(entry.getKey()).append(",").append(entry.getValue()).append("\n");
+            }
+
+            fileWriter.write(data.toString());
+        } catch (Exception exception) {
+            logger.error("An error occurred while trying to write the CSV file.");
         }
-
-        fileWriter.write(data.toString());
-        fileWriter.close();
     }
 
     public void appendCsvWithUser(String keycloakId, String username) throws IOException {
@@ -83,8 +87,6 @@ public class CsvManager {
         if (!created) {
             logger.error("Could not create CSV file: " + csvFile.getAbsolutePath());
         }
-        csvFile.setReadable(true);
-        csvFile.setWritable(true);
     }
 
     public void updateCsv(KeycloakSession keycloakSession) throws IOException {

@@ -26,10 +26,8 @@ public class UserEventListenerProvider implements EventListenerProvider {
 
     @Override
     public void onEvent(Event event) {
-        //Record metric
         PrometheusExporter.instance().recordEvents(event.getRealmId());
 
-        //Process event by type
         JsonFileStatus jsonFileStatus = JsonFileStatus.DELETE;
         switch (event.getType()) {
             case LOGIN:
@@ -69,12 +67,17 @@ public class UserEventListenerProvider implements EventListenerProvider {
             case DELETE: {
                 try {
                     String[] pathResource = adminEvent.getResourcePath().split("/");
-                    if (!pathResource[0].equals("users")) {
+                    String resource = pathResource[0];
+                    String userId = pathResource[1];
+                    if (!"users".equals(resource)) {
+                        logger.info("The resource: " + resource + " + is not match with the expected resource: user.");
                         break;
-                    } else if (adminEvent.getOperationType() == OperationType.DELETE && pathResource.length > 2) {
-                        userDataManager.exportUserData(keycloakSession, JsonFileStatus.CREATE, pathResource[1], adminEvent.getRealmId());
+                    }
+
+                    if (adminEvent.getOperationType() == OperationType.DELETE && pathResource.length > 2) {
+                        userDataManager.exportUserData(keycloakSession, JsonFileStatus.CREATE, userId, adminEvent.getRealmId());
                     } else {
-                        userDataManager.exportUserData(keycloakSession, jsonFileStatus, pathResource[1], adminEvent.getRealmId());
+                        userDataManager.exportUserData(keycloakSession, jsonFileStatus, userId, adminEvent.getRealmId());
                     }
                 } catch (Exception e) {
                     logger.error("Event:" + adminEvent.getOperationType() + ", Resource path:" + adminEvent.getResourcePath() + ", Realm:" + adminEvent.getRealmId(), e);
@@ -92,7 +95,6 @@ public class UserEventListenerProvider implements EventListenerProvider {
 
     @Override
     public void close() {
-
     }
 
     private String toString(Event event) {

@@ -13,7 +13,6 @@ public class GenerateCsvEndpoint implements RealmResourceProvider {
 
     private final KeycloakSession keycloakSession;
 
-    // The ID of the provider is also used as the name of the endpoint
     public final static String ID = "generate-csv";
 
     private static final boolean DISABLE_EXTERNAL_ACCESS = true;
@@ -31,8 +30,7 @@ public class GenerateCsvEndpoint implements RealmResourceProvider {
     public Response get(@Context HttpHeaders headers) throws IOException {
         if (DISABLE_EXTERNAL_ACCESS) {
             if (!headers.getRequestHeader("x-forwarded-host").isEmpty()) {
-                // Request is being forwarded by HA Proxy on Openshift
-                return Response.status(Status.FORBIDDEN).build(); //(stream).build();
+                return Response.status(Status.FORBIDDEN).build();
             }
         }
         try {

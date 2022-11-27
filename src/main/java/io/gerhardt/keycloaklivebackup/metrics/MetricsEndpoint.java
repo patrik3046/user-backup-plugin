@@ -10,7 +10,6 @@ import javax.ws.rs.core.Response.Status;
 
 public class MetricsEndpoint implements RealmResourceProvider {
 
-    // The ID of the provider is also used as the name of the endpoint
     public final static String ID = "backup-metrics";
 
     private static final boolean DISABLE_EXTERNAL_ACCESS = Boolean.parseBoolean(System.getenv("DISABLE_EXTERNAL_ACCESS"));
@@ -25,8 +24,7 @@ public class MetricsEndpoint implements RealmResourceProvider {
     public Response get(@Context HttpHeaders headers) {
         if (DISABLE_EXTERNAL_ACCESS) {
             if (!headers.getRequestHeader("x-forwarded-host").isEmpty()) {
-                // Request is being forwarded by HA Proxy on Openshift
-                return Response.status(Status.FORBIDDEN).build(); //(stream).build();
+                return Response.status(Status.FORBIDDEN).build();
             }
         }
 
