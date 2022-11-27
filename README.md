@@ -1,7 +1,7 @@
 # Introduction
 
 This is a personally updated and developed version of the open source User-Backup-Plugin owned by the Gerhardt Informatics Kft.
-The original source code can be found the following link: https://git.gerhardt.io/keycloak/backup-plugin
+The original source code can be found on the following link: https://git.gerhardt.io/keycloak/backup-plugin
 
 # How to use the plugin
 
@@ -47,10 +47,10 @@ There is two option:
 
 * Recommended: [optional:reinstall the server and add the plugin to it] -> create a realm with the same name like the
   other one had -> Import the export files -> Add the plugin into the realm -> call the restore
-  endpoint: `$HOST/auth/realms/$REALM_NAME/generateCsv`
+  endpoint: `$HOST/auth/realms/$REALM_NAME/generate-csv`
 * [optional:reinstall the server and add the plugin to it] -> create a realm with the same name like the other one had
   -> Add the plugin into the realm ->  Import the export files -> call the restore
-  endpoint: `$HOST/auth/realms/$REALM_NAME/generateCsv`
+  endpoint: `$HOST/auth/realms/$REALM_NAME/generate-csv`
 
 ## Metrics
 
